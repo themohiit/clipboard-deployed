@@ -1,0 +1,31 @@
+{
+  "name": "clipboard-deployed",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/themohiit/Lazy-Copy.git"
+  },
+  "keywords": [
+    "clip"
+  ],
+  "author": "Mohit Singh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/themohiit/Lazy-Copy/issues"
+  },
+  "homepage": "https://github.com/themohiit/Lazy-Copy#readme",
+  "dependencies": {
+    "clipboardy": "^5.0.2",
+    "express": "^5.2.1",
+    "http": "^0.0.1-security",
+    "node-notifier": "^10.0.1",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3"
+  },
+  "type":"module"
+}
