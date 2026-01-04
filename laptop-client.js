@@ -1,7 +1,7 @@
 import{io} from "socket.io-client";
 import clipboard from "clipboardy";
 import notifier from "node-notifier";
-const SERVER_URL = "https://clipboard-deployed.onrender.com/";
+const SERVER_URL = "https://clipboard-deployed-1.onrender.com";
 
 const socket = io(SERVER_URL);
 
@@ -21,26 +21,20 @@ socket.on("session-created",(id)=>{
         title: "Enter this in ur phone",
         message: sessionId,
         wait: true,
-        });
+        },() => {
+    console.log("Notification clicked");
+  });
 });
 
 setInterval(async()=>{
     if(!sessionId)return;
     const current = await clipboard.read();
-    console.log(current);
+    // console.log(current);
     if(current && current!== lastClipboard){
         lastClipboard=current;
-        notifier.notify(
-      {
-        title: "Clipboard Share",
-        message: "Click to send copied text to phone",
-        wait: true,
-      },
-      () => {
         socket.emit("clipboard", { sessionId,content:current });
-      }
-    );
+    
     console.log("sent clipboard:",current);
 
     }
-},)
+},1000)
