@@ -1,106 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Clipboard Receiver</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Clipboard Receiver</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
-      padding: 20px;
-    }
-
-    h1 {
-      font-size: 1.5rem;
-      margin-bottom: 10px;
-    }
-
-    input, button {
-      width: 100%;
-      padding: 12px;
-      font-size: 1rem;
-      margin-top: 10px;
-      border-radius: 8px;
-      border: none;
-    }
-
-    input {
-      background: #020617;
-      color: #e5e7eb;
-      border: 1px solid #334155;
-    }
-
-    button {
-      background: #2563eb;
-      color: white;
-      cursor: pointer;
-    }
-
-    #status {
-      margin-top: 12px;
-      font-size: 0.9rem;
-      color: #94a3b8;
-    }
-
-    #clipboard {
-      margin-top: 20px;
-      padding: 15px;
-      background: #020617;
-      border-radius: 10px;
-      white-space: pre-wrap;
-      word-break: break-word;
-      min-height: 120px;
-    }
-  </style>
-</head>
-<body>
-
-  <h1>📋 Clipboard Sync</h1>
-
-  <input id="sessionInput" placeholder="Enter pairing code" />
-  <button onclick="joinSession()">Connect</button>
-
-  <div id="status">Not connected</div>
-
-  <div id="clipboard">Waiting for clipboard...</div>
-
-  <!-- Socket.IO client -->
-  <script src="/socket.io/socket.io.js"></script>
-
-  <script>
-    const socket = io();
-
-    const statusEl = document.getElementById("status");
-    const clipboardEl = document.getElementById("clipboard");
-    const sessionInput = document.getElementById("sessionInput");
-
-    function joinSession() {
-      const sessionId = Number(sessionInput.value.trim());
-        console.log(typeof(sessionId))
-      if (!sessionId) {
-        alert("Enter pairing code");
-        return;
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        background: #0f172a;
+        color: #e5e7eb;
+        padding: 20px;
       }
 
-      socket.emit("join-session", sessionId);
-      statusEl.textContent = "Connecting...";
-    }
+      h1 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+      }
 
-    socket.on("session-joined", () => {
-      statusEl.textContent = "✅ Connected";
-    });
+      input,
+      button {
+        width: 100%;
+        padding: 12px;
+        font-size: 1rem;
+        margin-top: 10px;
+        border-radius: 8px;
+        border: none;
+      }
 
-    socket.on("invalid-session", () => {
-      statusEl.textContent = "❌ Invalid pairing code";
-    });
+      input {
+        background: #020617;
+        color: #e5e7eb;
+        border: 1px solid #334155;
+      }
 
-    socket.on("clipboard", (content) => {
-      clipboardEl.textContent = content;
-    });
-  </script>
+      button {
+        background: #2563eb;
+        color: white;
+        cursor: pointer;
+      }
 
-</body>
+      #status {
+        margin-top: 12px;
+        font-size: 0.9rem;
+        color: #94a3b8;
+      }
+
+      #clipboard {
+        margin-top: 20px;
+        padding: 15px;
+        background: #020617;
+        border-radius: 10px;
+        white-space: pre-wrap;
+        word-break: break-word;
+        min-height: 120px;
+      }
+
+      #clipboardWrapper {
+        position: relative;
+      }
+
+      #copyBtn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: #020617;
+        border: 1px solid #334155;
+        color: #e5e7eb;
+        border-radius: 6px;
+        padding: 6px 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        width: 40px;
+      }
+
+      #copyBtn:hover {
+        background: #1e293b;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>📋 Clipboard Sync</h1>
+
+    <input id="sessionInput" placeholder="Enter pairing code" />
+    <button onclick="joinSession()">Connect</button>
+
+    <div id="status">Not connected</div>
+
+    <div id="clipboardWrapper">
+      <button id="copyBtn" title="Copy to clipboard">📋</button>
+      <div id="clipboard">Waiting for clipboard...</div>
+    </div>
+
+    <!-- Socket.IO client -->
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+      const socket = io();
+
+      const statusEl = document.getElementById("status");
+      const clipboardEl = document.getElementById("clipboard");
+      const sessionInput = document.getElementById("sessionInput");
+
+      const copyBtn = document.getElementById("copyBtn");
+
+      copyBtn.addEventListener("click", async () => {
+      const text = clipboardEl.textContent;
+
+      if (!text || text === "Waiting for clipboard...") return;
+
+      try {
+        await navigator.clipboard.writeText(text);
+        copyBtn.textContent = "✅";
+        setTimeout(() => (copyBtn.textContent = "📋"), 1500);
+      } catch (err) {
+        alert("Copy failed");
+      }
+      });
+
+
+      function joinSession() {
+        const sessionId = Number(sessionInput.value.trim());
+        console.log(typeof sessionId);
+        if (!sessionId) {
+          alert("Enter pairing code");
+          return;
+        }
+
+        socket.emit("join-session", sessionId);
+        statusEl.textContent = "Connecting...";
+      }
+
+      socket.on("session-joined", () => {
+        statusEl.textContent = "✅ Connected";
+      });
+
+      socket.on("invalid-session", () => {
+        statusEl.textContent = "❌ Invalid pairing code";
+      });
+
+      socket.on("clipboard", (content) => {
+        clipboardEl.textContent = content;
+      });
+    </script>
+  </body>
 </html>

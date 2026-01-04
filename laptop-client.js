@@ -1,7 +1,7 @@
 import{io} from "socket.io-client";
 import clipboard from "clipboardy";
 import notifier from "node-notifier";
-const SERVER_URL = "http://localhost:3000";
+const SERVER_URL = "https://clipboard-deployed.onrender.com/";
 
 const socket = io(SERVER_URL);
 
